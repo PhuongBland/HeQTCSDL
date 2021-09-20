@@ -1,0 +1,8 @@
+ngôi nhà
+head<title: để họ tên>
+submenu
+about me:
+
+bài 2: 
+sử dụng thẻ <hr> để chia bài tập ra
+fieldset : bài tập 1, 2, 3
