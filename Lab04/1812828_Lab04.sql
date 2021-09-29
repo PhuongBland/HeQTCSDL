@@ -2935,17 +2935,18 @@ SELECT concat(lastName," ",firstName) as fullName, jobTitle from employees;
 select	concat(contactLastName," ",contactFirstName) as fullName, concat_ws("",addressLine1,"-", city,"***" ,state,"---",country) as address from customers;
 -- d. Thay thế toàn bộ tên nhóm hàng ‘Cars’ thành ‘Xe hơi’.
 SET SQL_SAFE_UPDATES = 0;
-UPDATE 1812828_database_lab04.products
+SET FOREIGN_KEY_CHECKS=0;
+UPDATE products
 SET productLine = REPLACE (productLine, 'Cars', 'Xe hoi')
 WHERE productLine LIKE '%Cars%';
 SET SQL_SAFE_UPDATES = 1;
--- SELECT REPLACE(productLine, 'Cars', 'Xe hơi') FROM products where productLine like '%Xe hơi';
-
+select*from products;
 -- e. Hiện thị Full_name người quản lý của các nhân viên. Nếu không có thì xuất
 -- ra từ “No”.
-select concat(lastName," ",firstName) as Full_name, jobTitle from employees where jobTitle like '%Manager%';
+select concat(lastName," ",firstName) as Full_name, jobTitle from employees;
 -- f. Hiện thị Full_name người nhân viên sale phụ trách của các khách hàng.
 -- Nếu không có thì xuất ra từ “Chưa có”.
+select concat(lastName," ",firstName) as Full_name from employees;
 -- g. Sử dụng hàm IF thống kê có bao nhiêu khách hàng ở từng quốc gia riêng
 -- biệt.
 -- h. Sử dụng hàm IF thống kê có bao nhiêu khách hàng không có địa chỉ số 2.
@@ -2957,17 +2958,17 @@ select	count(*)as Đơn_Hàng  from orders where shippedDate <= SUBDATE('2005-05
 -- k. Liệt kê các đơn đặt hàng sau ngày 2/3/2005 khoảng 1 tháng
 	select	* from orders where shippedDate >= adddate('2005-03-02', INTERVAL 30 Day);
 -- l. Liệt kê các đơn đặt hàng trước ngày 1/4/2005 khoảng 2 tuần
-select	* from orders where shippedDate <= subdate('2005-04-01', INTERVAL 2 week);
+	select	* from orders where shippedDate <= subdate('2005-04-01', INTERVAL 2 week);
 -- m. Đưa ra các đơn đặt hàng trong tháng 4 năm 2005 và có ngày chuyển hàng
 -- đến chưa xác định.
 select	* from orders where month(orderDate)= '4' and  year(orderDate)= '2005' and shippedDate is null;
 
--- n. Lấy ra Full_name của các khách hàng mà có đơn hàng đã bị hủy sau ngày
+-- n. Lấy ra Full_name của các khách hàng mà có đơn hàng đã bị hủy trước ngày
 -- 8/5/2004 khoảng 8 tháng
 
 SELECT  A.orderNumber,A.status, A.orderDate, A.ShippedDate, A.requiredDate,
  concat(contactLastName," ", contactFirstName)as Full_name
 FROM orders A, customers B
-WHERE A.customerNumber = B.customerNumber and status='Cancelles'
-and shippedDate <= subdate('2004-05-08', INTERVAL 8 month);
+WHERE A.customerNumber = B.customerNumber and status='Cancelled'
+and shippedDate <= adddate('2004-05-08', INTERVAL 8 month);
 
