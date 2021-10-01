@@ -2925,50 +2925,106 @@ select*from products;
 select*from productlines;
 select*from payments;
 
-	-- Cau hoi Lab04--  
--- a. Lấy ra 20 ký tự đầu tiên của phần mô tả sản phẩm, đặt tên là ‘Tiêu đề sản phẩm’
-	SELECT SUBSTR(productDescription, 1, 20) As productTitle from products;
+-- ======================= Câu hỏi lab04==========================
+-- a. Lấy ra 20 ký tự đầu tiên của phần mô tả sản phẩm, đặt tên là ‘Tiêu đề sản 
+-- phẩm’
+
+ SELECT SUBSTR(productDescription, 1, 20)
+ As productTitle from products;
+
 -- b. Lấy ra mô tả về các nhân viên theo định dạng ‘Fullname, jobTitle.’
-SELECT concat(lastName," ",firstName) as fullName, jobTitle from employees;
+SELECT concat(lastName," ",firstName) 
+as fullName, jobTitle from employees;
+
 -- c. Liệt kê ra họ tên khách hàng và địa chỉ của khách hàng theo định dạng sau:
 -- “địa chỉ1 - thành phố *** state --- quốc gia”.
-select	concat(contactLastName," ",contactFirstName) as fullName, concat_ws("",addressLine1,"-", city,"***" ,state,"---",country) as address from customers;
+
+select concat(contactLastName," ",contactFirstName) 
+as fullName, concat_ws("",
+addressLine1,"-",city,"***" ,state,"---",country) 
+as address from customers;
+
 -- d. Thay thế toàn bộ tên nhóm hàng ‘Cars’ thành ‘Xe hơi’.
-SET SQL_SAFE_UPDATES = 0;
-SET FOREIGN_KEY_CHECKS=0;
-UPDATE products
-SET productLine = REPLACE (productLine, 'Cars', 'Xe hoi')
-WHERE productLine LIKE '%Cars%';
-SET SQL_SAFE_UPDATES = 1;
-select*from products;
--- e. Hiện thị Full_name người quản lý của các nhân viên. Nếu không có thì xuất
+ SELECT REPLACE(productLine, 'cars', 'Xe hoi') 
+AS productLines, 
+htmlDescription, image, textDescription 
+FROM productlines;
+-- e. Hiện thị Full_name người quản lý của các nhân viên. Nếu không có thì xuất 
 -- ra từ “No”.
-select concat(lastName," ",firstName) as Full_name, jobTitle from employees;
--- f. Hiện thị Full_name người nhân viên sale phụ trách của các khách hàng.
+SELECT
+	A.*,
+    CASE
+        WHEN (A.reportsTo IS NULL) THEN 'No'
+        ELSE (
+            SELECT
+                B.firstName
+            FROM
+                employees B
+            WHERE
+                B.employeeNumber = A.reportsTo
+        )
+    END AS ManagerName
+FROM
+    employees A;
+
+-- f. Hiện thị Full_name người nhân viên sale phụ trách của các khách hàng. 
 -- Nếu không có thì xuất ra từ “Chưa có”.
-select concat(lastName," ",firstName) as Full_name from employees;
--- g. Sử dụng hàm IF thống kê có bao nhiêu khách hàng ở từng quốc gia riêng
+SELECT
+	*,
+    CASE
+        WHEN (salesRepEmployeeNumber IS NULL) THEN 'Chua Co'
+        ELSE (
+         SELECT
+        CONCAT(employees.firstName, ' ', employees.lastName)
+            FROM
+                employees
+      WHERE
+  employees.employeeNumber = customers.salesRepEmployeeNumber
+        )
+    END AS SaleEmployeeFullName
+FROM
+    customers;
+-- g. Sử dụng hàm IF thống kê có bao nhiêu khách hàng ở từng quốc gia riêng 
 -- biệt.
+ SELECT SUM(IF(customers.country = 'France', 1, 0)) 
+AS LuongKhachHangOFrance FROM customers;
+
 -- h. Sử dụng hàm IF thống kê có bao nhiêu khách hàng không có địa chỉ số 2.
--- i. Thống kê có bao nhiêu đơn hàng đã vận chuyển trước ngày 17/5/2005
--- khoảng 2 tháng.
-select	count(*)as Đơn_Hàng  from orders where shippedDate <= SUBDATE('2005-05-17', INTERVAL 2 MONTH);
+ SELECT SUM(IF(customers.addressLine2 IS NULL, 1, 0))
+AS SoLuongKhachHangKhongCoDiaChi2
+FROM customers;
+
+-- i. Thống kê có bao nhiêu đơn hàng đã vận chuyển trước ngày 17/5/2005 
+-- khoảng 2 tháng 
+select	count(*)as Đơn_Hàng  from orders 
+where shippedDate <= SUBDATE('2005-05-17', INTERVAL 2 MONTH);
+
 -- j. Tìm 5 đơn hàng được vận chuyển sớm nhất so với ngày yêu cầu.
--- select datediff(shipped, reaireDate) from orders-- 
+select datediff(requiredDate,shippedDate) 
+as SoonShipped, shippedDate,requiredDate 
+from orders order by SoonShipped desc limit 5;
+
 -- k. Liệt kê các đơn đặt hàng sau ngày 2/3/2005 khoảng 1 tháng
-	select	* from orders where shippedDate >= adddate('2005-03-02', INTERVAL 30 Day);
+ select	* from orders where
+ shippedDate >= adddate('2005-03-02', INTERVAL 30 Day);
+
 -- l. Liệt kê các đơn đặt hàng trước ngày 1/4/2005 khoảng 2 tuần
-	select	* from orders where shippedDate <= subdate('2005-04-01', INTERVAL 2 week);
--- m. Đưa ra các đơn đặt hàng trong tháng 4 năm 2005 và có ngày chuyển hàng
+select	* from orders 
+where shippedDate <= subdate('2005-04-01', INTERVAL 2 week);
+
+-- m. Đưa ra các đơn đặt hàng trong tháng 4 năm 2005 và có ngày chuyển hàng 
 -- đến chưa xác định.
-select	* from orders where month(orderDate)= '4' and  year(orderDate)= '2005' and shippedDate is null;
+  select	* from orders 
+where month(orderDate)= '4' and  year(orderDate)= '2005'
+ and shippedDate is null;
 
--- n. Lấy ra Full_name của các khách hàng mà có đơn hàng đã bị hủy trước ngày
--- 8/5/2004 khoảng 8 tháng
-
-SELECT  A.orderNumber,A.status, A.orderDate, A.ShippedDate, A.requiredDate,
+-- n. Lấy ra Full_name của các khách hàng mà có đơn hàng đã bị hủy sau ngày 8/5/2004 khoảng 8 tháng. 
+SELECT  A.orderNumber,A.status, A.orderDate,
+ A.ShippedDate, A.requiredDate,
  concat(contactLastName," ", contactFirstName)as Full_name
 FROM orders A, customers B
 WHERE A.customerNumber = B.customerNumber and status='Cancelled'
-and shippedDate <= adddate('2004-05-08', INTERVAL 8 month);
+and  A.orderDate BETWEEN '2004/5/8' 
+AND ADDDATE('2004/5/8', INTERVAL 8 MONTH);
+
 
