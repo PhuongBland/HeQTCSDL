@@ -2980,13 +2980,13 @@ from employees
 join offices
 on offices.officeCode=employees.officeCode;
 -- j. Đưa ra thông tin về nhân viên mà văn phòng nơi họ làm việc có tổng các
--- chữ số thành phần của số điện thoại là nhỏ nhất
-select employees.employeeNumber, employees.lastName, employees.firstName, offices.addressLine1, 
-offices.addressLine2, offices.city, offices.phone,count(offices.phone) as total
-from employees
-join offices
-on offices.officeCode=employees.officeCode
-group by  employees.employeeNumber;
+-- chữ số thành phần của số điện thoại là nhỏ nhất 
+select concat_ws(' ',employees.firstName,  employees.lastName) as fullname, offices.phone
+from employees, offices
+where employees.officeCode = offices.officeCode
+and char_length(replace(phone, ' ', '')) = (select max(char_length(replace(phone,' ','')))
+from offices);
+
 -- k. Đưa ra thông tin về tên khách hàng và tên các sản phẩm họ đã mua không
 -- có chứa chữ “Ford” nhưng có chứa chữ “A”.
 select customers.customerNumber, customers.customerName,products.productName
